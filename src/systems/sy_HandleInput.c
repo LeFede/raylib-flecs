@@ -1,8 +1,7 @@
-#include "../components/index.h"
-#include <flecs.h>
+#include "index.h"
 
 void sy_HandleInput(ecs_iter_t *it) {
-  Input *input = ecs_field(it, Input, 0);
+  si_Input *input = ecs_field(it, si_Input, 0);
 
   input->a = IsKeyDown(KEY_A);
   input->s = IsKeyDown(KEY_S);

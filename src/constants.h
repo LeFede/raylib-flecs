@@ -15,4 +15,7 @@ typedef char i8;
 typedef short i16;
 typedef int i32;
 
+
+enum Tex { t_GRID, t_ASEPRITE };
+
 #endif
