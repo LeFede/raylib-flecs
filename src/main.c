@@ -4,24 +4,16 @@
 #include "systems/sy_HandleInput.h"
 #include <flecs.h>
 #include <flecs/addons/flecs_c.h>
-#include <flecs/private/addons.h>
-#include <math.h>
 #include <raylib.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include <stdlib.h>
 
 ECS_COMPONENT_DECLARE(Position);
 ECS_COMPONENT_DECLARE(Sprite);
 ECS_COMPONENT_DECLARE(Velocity);
 ECS_COMPONENT_DECLARE(Input);
 ECS_COMPONENT_DECLARE(si_Camera);
-
-typedef struct si_Camera {
-  Camera2D main;
-  float zoomSpeed;
-  float rotateSpeed;
-} si_Camera;
+ECS_COMPONENT_DECLARE(si_Assets);
 
 void setup(ecs_world_t *world);
 void game_loop(ecs_world_t *world);
@@ -33,10 +25,11 @@ void sy_FinishDraw(ecs_iter_t *it);
 void sy_SpawnEntities(ecs_iter_t *it);
 void sy_BeginDraw(ecs_iter_t *it);
 void sy_UpdateCamera(ecs_iter_t *it);
+void sy_LoadAssets(ecs_iter_t *it);
 
-struct Assets {
+typedef struct si_Assets {
   Texture2D textures[10];
-} Assets;
+} si_Assets;
 
 enum Tex { t_GRID, t_ASEPRITE };
 
@@ -97,15 +90,15 @@ inline void setup(ecs_world_t *world) {
   InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE);
   SetTargetFPS(WINDOW_FPS);
 
-  Assets.textures[t_GRID] = LoadTexture("assets/grid.png");
-  Assets.textures[t_ASEPRITE] = LoadTexture("assets/aseprite.png");
-
+  // Components
   ECS_COMPONENT_DEFINE(world, Position);
   ECS_COMPONENT_DEFINE(world, Sprite);
   ECS_COMPONENT_DEFINE(world, Velocity);
   ECS_COMPONENT_DEFINE(world, Input);
   ECS_COMPONENT_DEFINE(world, si_Camera);
+  ECS_COMPONENT_DEFINE(world, si_Assets);
 
+  // Singletons
   ecs_singleton_set(world, Input, {});
   ecs_singleton_set(
       world, si_Camera,
@@ -117,6 +110,10 @@ inline void setup(ecs_world_t *world) {
           .zoomSpeed = 4.0f,
           .rotateSpeed = 40.0f,
       });
+
+  ecs_singleton_set(world, si_Assets,
+                    {.textures = {LoadTexture("assets/grid.png"),
+                                  LoadTexture("assets/aseprite.png")}});
 
   // Start
   ECS_SYSTEM(world, sy_SpawnEntities, EcsOnStart);
@@ -182,13 +179,14 @@ void sy_PrintDelta(ecs_iter_t *it) {
 
 void sy_DrawSprite(ecs_iter_t *it) {
   const si_Camera *c = ecs_singleton_get(it->world, si_Camera);
+  const si_Assets *a = ecs_singleton_get(it->world, si_Assets);
 
   BeginMode2D(c->main);
 
   Position *p = ecs_field(it, Position, 0);
   Sprite *s = ecs_field(it, Sprite, 1);
   for (int i = 0; i < it->count; i++) {
-    DrawTexture(Assets.textures[s[i].idx], p[i].x - s[i].origin.x,
+    DrawTexture(a->textures[s[i].idx], p[i].x - s[i].origin.x,
                 p[i].y - s[i].origin.y, s[i].color);
     DrawRectangle(p[i].x, p[i].y, 1, 1, (Color){255, 0, 0, 255});
   }
