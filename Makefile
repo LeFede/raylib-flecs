@@ -2,7 +2,7 @@ TARGET = a
 FOLDER = src/
 SYSTEMS = $(FOLDER)systems/
 COMPONENTS = $(FOLDER)components/
-SRC = $(wildcard $(FOLDER)*.c) $(wildcard $(SYSTEMS)*.c) $(wildcard $(COMPONENTS)*.c)
+SRC = $(shell find $(FOLDER) -type f -name '*.c')
 
 CC = gcc
 CFLAGS = -Wall -std=c99
