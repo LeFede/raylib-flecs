@@ -2,10 +2,7 @@ TARGET = a
 FOLDER = src/
 SYSTEMS = $(FOLDER)systems/
 COMPONENTS = $(FOLDER)components/
-SRC = $(FOLDER)main.c $(SYSTEMS)sy_HandleInput.c $(SYSTEMS)sy_PrepareCamera.c $(SYSTEMS)sy_BeginDraw.c $(SYSTEMS)sy_FinishDraw.c
-# $(SYSTEMS)sy_DrawSprite.c
- # $(SYSTEMS)sy_PrintDelta.c
-# $(FOLDER)spawn_aseprite.c
+SRC = $(wildcard $(FOLDER)*.c) $(wildcard $(SYSTEMS)*.c) $(wildcard $(COMPONENTS)*.c)
 
 CC = gcc
 CFLAGS = -Wall -std=c99
